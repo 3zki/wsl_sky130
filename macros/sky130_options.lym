@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <klayout-macro>
- <description>Load options</description>
+ <description>Set Options (Restart required!)</description>
  <version/>
  <category/>
  <prolog/>
@@ -10,7 +10,7 @@
  <autorun-early>false</autorun-early>
  <shortcut/>
  <show-in-menu>true</show-in-menu>
- <group-name>Load options</group-name>
+ <group-name>Set options</group-name>
  <menu-path>skymenu&gt;end("sky130 PDK").end</menu-path>
  <interpreter>ruby</interpreter>
  <dsl-interpreter-name/>
@@ -43,8 +43,9 @@
   # create a toolbar skymenu
   mw.menu.insert_menu("skymenu.end", "lvs_menu", "Klayout LVS Options")
   mw.menu.insert_menu("skymenu.end", "lvs_magic_menu", "Magic LVS Options")
-  mw.menu.insert_menu("skymenu.end", "pex_magic_menu", "Magic PEX Options")
-  mw.menu.insert_separator("skymenu.pex_magic_menu+", "name2")
+  mw.menu.insert_menu("skymenu.end", "pex_magic_menu", "Magic PEX-RC Options")
+  mw.menu.insert_menu("skymenu.end", "pex_c_magic_menu", "Magic PEX-C Options")
+  mw.menu.insert_separator("skymenu.pex_c_magic_menu+", "name2")
 
   #####################################################################################
   # Adding Klayout LVS options
@@ -59,10 +60,10 @@
       text = File.read(f)
       if sub_name 
         if text.include?("$lvs_sub")
-          new_contents = text.gsub(/lvs_sub = \".*\"/, '$lvs_sub = "'+ sub_name + '"')
+          new_contents = text.gsub(/\$lvs_sub = \".*\"/, '$lvs_sub = "'+ sub_name + '"')
           File.open(f, "w") {|file| file.puts new_contents }
         else
-          new_contents = text.gsub(/(\# \%.*lvs)/m, 'lvs_sub = "'+ sub_name +'"' +"\n"+'\1')
+          new_contents = text.gsub(/(\# \%.*lvs)/m, '$lvs_sub = "'+ sub_name +'"' +"\n"+'\1')
           File.open(f, "w") {|file| file.puts new_contents }
         end
       end
@@ -95,7 +96,14 @@
   spice_net_action = RBA::Action::new
   spice_net_action.title = "SPICE net name"
   spice_net_action.checkable=(true)
-  spice_net_action.checked=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("$spice_net_names = \"true\"")
+      spice_net_action.checked=(true)
+    else
+      spice_net_action.checked=(false)
+    end
+  }
   spice_net_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
@@ -119,7 +127,14 @@
   spice_comment_action = RBA::Action::new
   spice_comment_action.title = "SPICE comments"
   spice_comment_action.checkable=(true)
-  spice_comment_action.checked=(false)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("$spice_comments = \"true\"")
+      spice_comment_action.checked=(true)
+    else
+      spice_comment_action.checked=(false)
+    end
+  }
   spice_comment_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
@@ -128,11 +143,11 @@
       else
         spice_comment_bool = "false"
       end
-      if text.include?("$spice_with_comments")
-        new_contents = text.gsub(/\$spice_with_comments = \".*\"/, '$spice_with_comments = "'+ spice_comment_bool + '"')
+      if text.include?("$spice_comments")
+        new_contents = text.gsub(/\$spice_comments = \".*\"/, '$spice_comments = "'+ spice_comment_bool + '"')
         File.open(f, "w") {|file| file.puts new_contents }
       else
-        new_contents = text.gsub(/(\# \%.*lvs)/m, '$spice_with_comments = "'+ spice_comment_bool +'"' +"\n"+'\1')
+        new_contents = text.gsub(/(\# \%.*lvs)/m, '$spice_comments = "'+ spice_comment_bool +'"' +"\n"+'\1')
         File.open(f, "w") {|file| file.puts new_contents }
       end
     }
@@ -143,7 +158,14 @@
   scale_action = RBA::Action::new
   scale_action.title = "Scaling x10^6"
   scale_action.checkable=(true)
-  scale_action.checked=(false)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("$scale = \"true\"")
+      scale_action.checked=(true)
+    else
+      scale_action.checked=(false)
+    end
+  }
   scale_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
@@ -167,7 +189,14 @@
   verbose_action = RBA::Action::new
   verbose_action.title = "Verbose mode"
   verbose_action.checkable=(true)
-  verbose_action.checked=(false)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("$verbose = \"true\"")
+      verbose_action.checked=(true)
+    else
+      verbose_action.checked=(false)
+    end
+  }
   verbose_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
@@ -191,7 +220,14 @@
   schematic_simple_action = RBA::Action::new
   schematic_simple_action.title = "Schematic simplify"
   schematic_simple_action.checkable=(true)
-  schematic_simple_action.checked=(false)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("$schematic_simplify = \"true\"")
+      schematic_simple_action.checked=(true)
+    else
+      schematic_simple_action.checked=(false)
+    end
+  }
   schematic_simple_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
@@ -215,7 +251,14 @@
   net_only_action = RBA::Action::new
   net_only_action.title = "Netlist only"
   net_only_action.checkable=(true)
-  net_only_action.checked=(false)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("$net_only = \"true\"")
+      net_only_action.checked=(true)
+    else
+      net_only_action.checked=(false)
+    end
+  }
   net_only_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
@@ -239,7 +282,14 @@
   top_lvl_pins_action = RBA::Action::new
   top_lvl_pins_action.title = "Top level pins"
   top_lvl_pins_action.checkable=(true)
-  top_lvl_pins_action.checked=(false)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("$top_lvl_pins = \"true\"")
+      top_lvl_pins_action.checked=(true)
+    else
+      top_lvl_pins_action.checked=(false)
+    end
+  }
   top_lvl_pins_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
@@ -263,7 +313,14 @@
   combine_action = RBA::Action::new
   combine_action.title = "Devices combine"
   combine_action.checkable=(true)
-  combine_action.checked=(false)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("$combine = \"true\"")
+      combine_action.checked=(true)
+    else
+      combine_action.checked=(false)
+    end
+  }
   combine_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
@@ -287,7 +344,14 @@
   purge_action = RBA::Action::new
   purge_action.title = "Purge"
   purge_action.checkable=(true)
-  purge_action.checked=(false)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("$purge = \"true\"")
+      purge_action.checked=(true)
+    else
+      purge_action.checked=(false)
+    end
+  }
   purge_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
@@ -296,7 +360,7 @@
       else
         purge_bool = "false"
       end
-      if text.include?("$verbose")
+      if text.include?("$purge")
         new_contents = text.gsub(/\$purge = \".*\"/, '$purge = "'+ purge_bool + '"')
         File.open(f, "w") {|file| file.puts new_contents }
       else
@@ -311,7 +375,14 @@
   purge_nets_action = RBA::Action::new
   purge_nets_action.title = "Purge nets"
   purge_nets_action.checkable=(true)
-  purge_nets_action.checked=(false)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("$purge_nets = \"true\"")
+      purge_nets_action.checked=(true)
+    else
+      purge_nets_action.checked=(false)
+    end
+  }
   purge_nets_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
@@ -331,44 +402,242 @@
   end
   mw.menu.insert_item("skymenu.lvs_menu.end", "purge_nets", purge_nets_action)
   
-  #13 Setting connect_implicit
-  connect_implicit_action = RBA::Action::new
-  connect_implicit_action.title = "Implicit connectivity"
-  connect_implicit_action.checkable=(true)
-  connect_implicit_action.checked=(false)
-  connect_implicit_action.on_triggered do
+  #13 Adding schematic path
+  sch_action = RBA::Action::new
+  sch_action.title = "Schematic path"
+  sch_action.on_triggered do
+    sch_path = RBA::InputDialog::ask_string("Schematic path", "Please enter schematic path", "lvs_temp.cdl")
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_lvs.lylvs", 'w') { |f| 
       text = File.read(f)
-      if connect_implicit_action.is_checked?
-        connect_implicit_bool = "true"
-      else
-        connect_implicit_bool = "false"
-      end
-      if text.include?("$connect_implicit")
-        new_contents = text.gsub(/\$connect_implicit = \".*\"/, '$connect_implicit = "'+ connect_implicit_bool + '"')
-        File.open(f, "w") {|file| file.puts new_contents }
-      else
-        new_contents = text.gsub(/(\# \%.*lvs)/m, '$connect_implicit = "'+ connect_implicit_bool +'"' +"\n"+'\1')
-        File.open(f, "w") {|file| file.puts new_contents }
+      if sch_path 
+        if text.include?("$schematic")
+          new_contents = text.gsub(/\$schematic = \".*\"/, '$schematic = "'+ sch_path + '"')
+          File.open(f, "w") {|file| file.puts new_contents }
+        else
+          new_contents = text.gsub(/(\# \%.*lvs)/m, '$schematic = "'+ sch_path +'"' +"\n"+'\1')
+          File.open(f, "w") {|file| file.puts new_contents }
+        end
       end
     }
   end
-  mw.menu.insert_item("skymenu.lvs_menu.end", "connect_implicit", connect_implicit_action)
+  mw.menu.insert_item("skymenu.lvs_menu.end", "sch_path", sch_action)
   
-
-    #####################################################################################
+  #####################################################################################
   # Adding Magic LVS options
   #####################################################################################
   
   #1 Setting Combine devices
-  combine_action = RBA::Action::new
-  combine_action.title = "Combine devices"
-  combine_action.checkable=(true)
-  combine_action.checked=(false)
-  combine_action.on_triggered do
+  mag_combine_action = RBA::Action::new
+  mag_combine_action.title = "Combine devices"
+  mag_combine_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("combine = \"-M \"")
+      mag_combine_action.checked=(true)
+    else
+      mag_combine_action.checked=(false)
+    end
+  }
+  mag_combine_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
       text = File.read(f)
-      if combine_action.is_checked?
+      if mag_combine_action.is_checked?
+        mag_combine_bool = "-M "
+      else
+        mag_combine_bool = ""
+      end
+      new_contents = text.gsub(/combine = \".*\"/, 'combine = "'+ mag_combine_bool + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "mag_combine", mag_combine_action)
+  
+  #2 Setting Distribute area and perimeter
+  mag_distrib_action = RBA::Action::new
+  mag_distrib_action.title = "Distribute area and perimeter"
+  mag_distrib_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("distrib = \"-d \"")
+      mag_distrib_action.checked=(true)
+    else
+      mag_distrib_action.checked=(false)
+    end
+  }
+  mag_distrib_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+      text = File.read(f)
+      if mag_distrib_action.is_checked?
+        mag_distrib_bool = "-d "
+      else
+        mag_distrib_bool = ""
+      end
+      new_contents = text.gsub(/distrib = \".*\"/, 'distrib = "'+ mag_distrib_bool + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "mag_distrib", mag_distrib_action)
+  
+  #3 Setting Less attributes
+  mag_no_attr_action = RBA::Action::new
+  mag_no_attr_action.title = "Less attributes"
+  mag_no_attr_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("no_attr = \"-B \"")
+      mag_no_attr_action.checked=(true)
+    else
+      mag_no_attr_action.checked=(false)
+    end
+  }
+  mag_no_attr_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+      text = File.read(f)
+      if mag_no_attr_action.is_checked?
+        mag_no_attr_bool = "-B "
+      else
+        mag_no_attr_bool = ""
+      end
+      new_contents = text.gsub(/no_attr = \".*\"/, 'no_attr = "'+ mag_no_attr_bool + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "mag_no_attr", mag_no_attr_action)
+  
+  #4 Setting Purge nets
+  mag_purge_action = RBA::Action::new
+  mag_purge_action.title = "Purge nets"
+  mag_purge_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("purge = \"-F \"")
+      mag_purge_action.checked=(true)
+    else
+      mag_purge_action.checked=(false)
+    end
+  }
+  mag_purge_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+      text = File.read(f)
+      if mag_purge_action.is_checked?
+        mag_purge_bool = "-F "
+      else
+        mag_purge_bool = ""
+      end
+      new_contents = text.gsub(/purge = \".*\"/, 'purge = "'+ mag_purge_bool + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "mag_purge", mag_purge_action)
+
+
+  #5.1 Setting Trimmed characters - #
+  mag_trim_hash_action = RBA::Action::new
+  mag_trim_hash_action.title = "Trimmed characters - \#"
+  mag_trim_hash_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("trim_hash = \"-t # \"")
+      mag_trim_hash_action.checked=(true)
+    else
+      mag_trim_hash_action.checked=(false)
+    end
+  }
+  mag_trim_hash_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+      text = File.read(f)
+      if mag_trim_hash_action.is_checked?
+        mag_trim_hash_bool = "-t # "
+      else
+        mag_trim_hash_bool = ""
+      end
+      new_contents = text.gsub(/trim_hash = \".*\"/, 'trim_hash = "'+ mag_trim_hash_bool + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "mag_trim_hash", mag_trim_hash_action)
+
+  #5.2 Setting Trimmed characters - !
+  mag_trim_exclam_action = RBA::Action::new
+  mag_trim_exclam_action.title = "Trimmed characters - \!"
+  mag_trim_exclam_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("trim_exclam = \"-t ! \"")
+      mag_trim_exclam_action.checked=(true)
+    else
+      mag_trim_exclam_action.checked=(false)
+    end
+  }
+  mag_trim_exclam_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+      text = File.read(f)
+      if mag_trim_exclam_action.is_checked?
+        mag_trim_exclam_bool = "-t ! "
+      else
+        mag_trim_exclam_bool = ""
+      end
+      new_contents = text.gsub(/trim_exclam = \".*\"/, 'trim_exclam = "'+ mag_trim_exclam_bool + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "mag_trim_exclam", mag_trim_exclam_action)
+
+  #6 Setting Run mode
+  mag_run_mode_action = RBA::Action::new
+  mag_run_mode_action.title = "Run mode"
+  mag_run_mode_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+      text = File.read(f)
+      mag_run_mode_select = RBA::InputDialog::ask_item("Run mode", "Select running mode:", [ "hier", "flat"], 1)
+      if mag_run_mode_select
+        if mag_run_mode_select == "hier"
+          new_contents = text.gsub(/mode = \".*\"/, 'mode = "-J '+ mag_run_mode_select + ' "')
+          File.open(f, "w") {|file| file.puts new_contents }
+        else
+          new_contents = text.gsub(/mode = \".*\"/, 'mode = "-J '+ mag_run_mode_select + ' "')
+          File.open(f, "w") {|file| file.puts new_contents }
+        end
+      end
+    }
+  end
+  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "mag_run_mode", mag_run_mode_action)
+
+  #7 Adding Xschem netlist path
+  mag_xschem_action = RBA::Action::new
+  mag_xschem_action.title = "Xschem netlist path"
+  mag_xschem_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+      text = File.read(f)
+      mag_xschem = RBA::InputDialog::ask_string("Xschem netlist path", "Please enter xschem netlist path", "~/.xschem/simulations")
+      if mag_xschem
+        new_contents = text.gsub(/simpath = \".*\"/, 'simpath = "'+ mag_xschem +'"')
+        File.open(f, "w") {|file| file.puts new_contents }
+      end
+    }
+  end
+  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "mag_xschem", mag_xschem_action)
+  
+  #####################################################################################
+  # Adding Magic PEX(RC) options
+  #####################################################################################
+  
+  #1 Setting Combine devices
+  combine_pex_action = RBA::Action::new
+  combine_pex_action.title = "Combine devices"
+  combine_pex_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("combine = \"-M \"")
+      combine_pex_action.checked=(true)
+    else
+      combine_pex_action.checked=(false)
+    end
+  }
+  combine_pex_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
+      text = File.read(f)
+      if combine_pex_action.is_checked?
         combine_bool = "-M "
       else
         combine_bool = ""
@@ -377,17 +646,24 @@
       File.open(f, "w") {|file| file.puts new_contents }
     }
   end
-  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "combine", combine_action)
+  mw.menu.insert_item("skymenu.pex_magic_menu.end", "combine_pex", combine_pex_action)
   
   #2 Setting Distribute area and perimeter
-  distrib_action = RBA::Action::new
-  distrib_action.title = "Distribute area and perimeter"
-  distrib_action.checkable=(true)
-  distrib_action.checked=(false)
-  distrib_action.on_triggered do
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+  distrib_pex_action = RBA::Action::new
+  distrib_pex_action.title = "Distribute area and perimeter"
+  distrib_pex_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("distrib = \"-d \"")
+      distrib_pex_action.checked=(true)
+    else
+      distrib_pex_action.checked=(false)
+    end
+  }
+  distrib_pex_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
       text = File.read(f)
-      if distrib_action.is_checked?
+      if distrib_pex_action.is_checked?
         distrib_bool = "-d "
       else
         distrib_bool = ""
@@ -396,17 +672,24 @@
       File.open(f, "w") {|file| file.puts new_contents }
     }
   end
-  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "distrib", distrib_action)
+  mw.menu.insert_item("skymenu.pex_magic_menu.end", "distrib_pex", distrib_pex_action)
   
   #3 Setting Less attributes
-  no_attr_action = RBA::Action::new
-  no_attr_action.title = "Less attributes"
-  no_attr_action.checkable=(true)
-  no_attr_action.checked=(false)
-  no_attr_action.on_triggered do
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+  no_attr_pex_action = RBA::Action::new
+  no_attr_pex_action.title = "Less attributes"
+  no_attr_pex_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("no_attr = \"-B \"")
+      no_attr_pex_action.checked=(true)
+    else
+      no_attr_pex_action.checked=(false)
+    end
+  }
+  no_attr_pex_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
       text = File.read(f)
-      if no_attr_action.is_checked?
+      if no_attr_pex_action.is_checked?
         no_attr_bool = "-B "
       else
         no_attr_bool = ""
@@ -415,17 +698,24 @@
       File.open(f, "w") {|file| file.puts new_contents }
     }
   end
-  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "no_attr", no_attr_action)
+  mw.menu.insert_item("skymenu.pex_magic_menu.end", "no_attr_pex", no_attr_pex_action)
   
   #4 Setting Purge nets
-  purge_action = RBA::Action::new
-  purge_action.title = "Purge nets"
-  purge_action.checkable=(true)
-  purge_action.checked=(false)
-  purge_action.on_triggered do
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+  purge_pex_action = RBA::Action::new
+  purge_pex_action.title = "Purge nets"
+  purge_pex_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("purge = \"-F \"")
+      purge_pex_action.checked=(true)
+    else
+      purge_pex_action.checked=(false)
+    end
+  }
+  purge_pex_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
       text = File.read(f)
-      if purge_action.is_checked?
+      if purge_pex_action.is_checked?
         purge_bool = "-F "
       else
         purge_bool = ""
@@ -434,173 +724,60 @@
       File.open(f, "w") {|file| file.puts new_contents }
     }
   end
-  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "purge", purge_action)
-  
-  #5 Setting Trimmed characters
-  trim_action = RBA::Action::new
-  trim_action.title = "Trimmed characters"
-  trim_action.on_triggered do
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
-      text = File.read(f)
-      trim_select = RBA::InputDialog::ask_item("Trimmed characters", "Select characters to trim from nodes:", [ "#", "!", "both" ], 2)
-      if trim_select
-        if trim_select == "#"
-          new_contents = text.gsub(/trim_hash = \".*\"/, 'trim_hash = "-t '+ trim_select + ' "')
-          File.open(f, "w") {|file| file.puts new_contents }
-        elsif trim_select == "!"
-          new_contents = text.gsub(/trim_exclam = \".*\"/, 'trim_exclam = "-t '+ trim_select + ' "')
-          File.open(f, "w") {|file| file.puts new_contents }
-        else
-          new_contents = text.gsub(/trim_hash = \".*\"/, 'trim_hash = "-t '+ trim_select + ' "')
-          File.open(f, "w") {|file| file.puts new_contents }
-          new_contents = text.gsub(/trim_exclam = \".*\"/, 'trim_exclam = "-t '+ trim_select + ' "')
-          File.open(f, "w") {|file| file.puts new_contents }
-        end
-      end
-    }
-  end
-  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "trim", trim_action)
+  mw.menu.insert_item("skymenu.pex_magic_menu.end", "purge_pex", purge_pex_action)
 
-  #6 Setting Run mode
-  run_mode_action = RBA::Action::new
-  run_mode_action.title = "Run mode"
-  run_mode_action.on_triggered do
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
-      text = File.read(f)
-      run_mode_select = RBA::InputDialog::ask_item("Run mode", "Select running mode:", [ "hier", "flat"], 1)
-      if run_mode_select
-        if run_mode_select == "hier"
-          new_contents = text.gsub(/mode = \".*\"/, 'mode = "-J '+ run_mode_select + ' "')
-          File.open(f, "w") {|file| file.puts new_contents }
-        else
-          new_contents = text.gsub(/mode = \".*\"/, 'mode = "-J '+ run_mode_select + ' "')
-          File.open(f, "w") {|file| file.puts new_contents }
-        end
-      end
-    }
-  end
-  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "run_mode", run_mode_action)
 
-  #7 Adding Xschem netlist path
-  xschem_action = RBA::Action::new
-  xschem_action.title = "Xschem netlist path"
-  xschem_action.on_triggered do
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+  #5.1 Setting Trimmed characters - #
+  trim_hash_pex_action = RBA::Action::new
+  trim_hash_pex_action.title = "Trimmed characters - \#"
+  trim_hash_pex_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("trim_hash = \"-t # \"")
+      trim_hash_pex_action.checked=(true)
+    else
+      trim_hash_pex_action.checked=(false)
+    end
+  }
+  trim_hash_pex_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
       text = File.read(f)
-      xschem = RBA::InputDialog::ask_string("Xschem netlist path", "Please enter xschem netlist path", "~/.xschem/simulations")
-      if xschem
-        new_contents = text.gsub(/simpath = \".*\"/, 'simpath = "'+ xschem +'"')
-        File.open(f, "w") {|file| file.puts new_contents }
+      if trim_hash_pex_action.is_checked?
+        trim_hash_bool = "-t # "
+      else
+        trim_hash_bool = ""
       end
+      new_contents = text.gsub(/trim_hash = \".*\"/, 'trim_hash = "'+ trim_hash_bool + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
     }
   end
-  mw.menu.insert_item("skymenu.lvs_magic_menu.end", "xschem", xschem_action)
-  
+  mw.menu.insert_item("skymenu.pex_magic_menu.end", "trim_hash_pex", trim_hash_pex_action)
 
-  #####################################################################################
-  # Adding Magic PEX options
-  #####################################################################################
-  
-  #1 Setting Combine devices
-  combine_pex_action = RBA::Action::new
-  combine_pex_action.title = "Combine devices"
-  combine_pex_action.checkable=(true)
-  combine_pex_action.checked=(false)
-  combine_pex_action.on_triggered do
+  #5.2 Setting Trimmed characters - !
+  trim_exclam_pex_action = RBA::Action::new
+  trim_exclam_pex_action.title = "Trimmed characters - \!"
+  trim_exclam_pex_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("trim_exclam = \"-t ! \"")
+      trim_exclam_pex_action.checked=(true)
+    else
+      trim_exclam_pex_action.checked=(false)
+    end
+  }
+  trim_exclam_pex_action.on_triggered do
     File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
       text = File.read(f)
-      if combine_pex_action.is_checked?
-        combine_pex_bool = "-M "
+      if trim_exclam_pex_action.is_checked?
+        trim_exclam_bool = "-t ! "
       else
-        combine_pex_bool = ""
+        trim_exclam_bool = ""
       end
-      new_contents = text.gsub(/combine = \".*\"/, 'combine = "'+ combine_pex_bool + '"')
+      new_contents = text.gsub(/trim_exclam = \".*\"/, 'trim_exclam = "'+ trim_exclam_bool + '"')
       File.open(f, "w") {|file| file.puts new_contents }
     }
   end
-  mw.menu.insert_item("skymenu.pex_magic_menu.end", "combine", combine_pex_action)
-  
-  #2 Setting Distribute area and perimeter
-  distrib_pex_action = RBA::Action::new
-  distrib_pex_action.title = "Distribute area and perimeter"
-  distrib_pex_action.checkable=(true)
-  distrib_pex_action.checked=(false)
-  distrib_pex_action.on_triggered do
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
-      text = File.read(f)
-      if distrib_pex_action.is_checked?
-        distrib_pex_bool = "-d "
-      else
-        distrib_pex_bool = ""
-      end
-      new_contents = text.gsub(/distrib = \".*\"/, 'distrib = "'+ distrib_pex_bool + '"')
-      File.open(f, "w") {|file| file.puts new_contents }
-    }
-  end
-  mw.menu.insert_item("skymenu.pex_magic_menu.end", "distrib", distrib_pex_action)
-  
-  #3 Setting Less attributes
-  no_attr_pex_action = RBA::Action::new
-  no_attr_pex_action.title = "Less attributes"
-  no_attr_pex_action.checkable=(true)
-  no_attr_pex_action.checked=(false)
-  no_attr_pex_action.on_triggered do
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
-      text = File.read(f)
-      if no_attr_pex_action.is_checked?
-        no_attr_pex_bool = "-B "
-      else
-        no_attr_pex_bool = ""
-      end
-      new_contents = text.gsub(/no_attr = \".*\"/, 'no_attr = "'+ no_attr_pex_bool + '"')
-      File.open(f, "w") {|file| file.puts new_contents }
-    }
-  end
-  mw.menu.insert_item("skymenu.pex_magic_menu.end", "no_attr", no_attr_pex_action)
-  
-  #4 Setting Purge nets
-  purge_pex_action = RBA::Action::new
-  purge_pex_action.title = "Purge nets"
-  purge_pex_action.checkable=(true)
-  purge_pex_action.checked=(false)
-  purge_pex_action.on_triggered do
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
-      text = File.read(f)
-      if purge_pex_action.is_checked?
-        purge_pex_bool = "-F "
-      else
-        purge_pex_bool = ""
-      end
-      new_contents = text.gsub(/purge = \".*\"/, 'purge = "'+ purge_pex_bool + '"')
-      File.open(f, "w") {|file| file.puts new_contents }
-    }
-  end
-  mw.menu.insert_item("skymenu.pex_magic_menu.end", "purge", purge_pex_action)
-  
-  #5 Setting Trimmed characters
-  trim_pex_action = RBA::Action::new
-  trim_pex_action.title = "Trimmed characters"
-  trim_pex_action.on_triggered do
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
-      text = File.read(f)
-      trim_pex_select = RBA::InputDialog::ask_item("Trimmed characters", "Select characters to trim from nodes:", [ "#", "!", "both" ], 2)
-      if trim_pex_select
-        if trim_pex_select == "#"
-          new_contents = text.gsub(/trim_hash = \".*\"/, 'trim_hash = "-t '+ trim_pex_select + ' "')
-          File.open(f, "w") {|file| file.puts new_contents }
-        elsif trim_pex_select == "!"
-          new_contents = text.gsub(/trim_exclam = \".*\"/, 'trim_exclam = "-t '+ trim_pex_select + ' "')
-          File.open(f, "w") {|file| file.puts new_contents }
-        else
-          new_contents = text.gsub(/trim_hash = \".*\"/, 'trim_hash = "-t '+ trim_pex_select + ' "')
-          File.open(f, "w") {|file| file.puts new_contents }
-          new_contents = text.gsub(/trim_exclam = \".*\"/, 'trim_exclam = "-t '+ trim_pex_select + ' "')
-          File.open(f, "w") {|file| file.puts new_contents }
-        end
-      end
-    }
-  end
-  mw.menu.insert_item("skymenu.pex_magic_menu.end", "trim", trim_pex_action)
+  mw.menu.insert_item("skymenu.pex_magic_menu.end", "trim_exclam_pex", trim_exclam_pex_action)
 
   #6 Setting Run mode
   run_mode_pex_action = RBA::Action::new
@@ -620,81 +797,191 @@
       end
     }
   end
-  mw.menu.insert_item("skymenu.pex_magic_menu.end", "run_mode", run_mode_pex_action)
-
+  mw.menu.insert_item("skymenu.pex_magic_menu.end", "run_mode_pex", run_mode_pex_action)
 
   #####################################################################################
-  # Return to defaults on closing
+  # Adding Magic PEX(C) options
   #####################################################################################
   
-  mw.on_view_closed do
-    
-    str = '&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;klayout-macro&gt;
- &lt;description&gt;Run Klayout LVS&lt;/description&gt;
- &lt;version&gt;0.1&lt;/version&gt;
- &lt;category&gt;lvs&lt;/category&gt;
- &lt;prolog/&gt;
- &lt;epilog/&gt;
- &lt;doc/&gt;
- &lt;autorun&gt;false&lt;/autorun&gt;
- &lt;autorun-early&gt;false&lt;/autorun-early&gt;
- &lt;shortcut/&gt;
- &lt;show-in-menu&gt;true&lt;/show-in-menu&gt;
- &lt;group-name/&gt;
- &lt;menu-path&gt;skymenu&amp;gt;end("sky130 PDK").end&lt;/menu-path&gt;
- &lt;interpreter&gt;dsl&lt;/interpreter&gt;
- &lt;dsl-interpreter-name&gt;lvs-dsl-xml&lt;/dsl-interpreter-name&gt;
- &lt;text&gt;
-# Copyright 2022 SkyWater PDK Authors
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-# SPDX-License-Identifier: Apache-2.0
-
-'
-    str = str + "\n# %include ../lvs/sky130.lvs\n&lt;/text&gt;\n&lt;/klayout-macro&gt;"
-
-    File.open(File.expand_path(File.dirname(__FILE__)) + "/sky130_lvs.lylvs", 'w') { |f| f.write(str) }
-    
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_netgen_lvs.lym", 'w') { |f| 
+  #1 Setting Combine devices
+  combine_pex_c_action = RBA::Action::new
+  combine_pex_c_action.title = "Combine devices"
+  combine_pex_c_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("combine = \"-M \"")
+      combine_pex_c_action.checked=(true)
+    else
+      combine_pex_c_action.checked=(false)
+    end
+  }
+  combine_pex_c_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
       text = File.read(f)
-      new_contents = text.gsub(/combine.*\n  # End/m, 'combine = ""
-  distrib = ""
-  no_attr = ""
-  purge = ""
-  trim_hash = ""
-  trim_exclam = ""
-  mode = ""
-  simpath = "~/.xschem/simulations"
-  # End')
-      File.open(f, "w") {|file| file.puts new_contents }
-    }
-
-
-    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex.lym", 'w') { |f| 
-      text = File.read(f)
-      new_contents = text.gsub(/combine.*\n  # End/m, 'combine = ""
-  distrib = ""
-  no_attr = ""
-  purge = ""
-  trim_hash = ""
-  trim_exclam = ""
-  mode = ""
-  # End')
+      if combine_pex_c_action.is_checked?
+        combine_bool_c = "-M "
+      else
+        combine_bool_c = ""
+      end
+      new_contents = text.gsub(/combine = \".*\"/, 'combine = "'+ combine_bool_c + '"')
       File.open(f, "w") {|file| file.puts new_contents }
     }
   end
+  mw.menu.insert_item("skymenu.pex_c_magic_menu.end", "combine_pex_c", combine_pex_c_action)
+  
+  #2 Setting Distribute area and perimeter
+  distrib_pex_c_action = RBA::Action::new
+  distrib_pex_c_action.title = "Distribute area and perimeter"
+  distrib_pex_c_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("distrib = \"-d \"")
+      distrib_pex_c_action.checked=(true)
+    else
+      distrib_pex_c_action.checked=(false)
+    end
+  }
+  distrib_pex_c_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+      text = File.read(f)
+      if distrib_pex_c_action.is_checked?
+        distrib_bool_c = "-d "
+      else
+        distrib_bool_c = ""
+      end
+      new_contents = text.gsub(/distrib = \".*\"/, 'distrib = "'+ distrib_bool_c + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.pex_c_magic_menu.end", "distrib_pex_c", distrib_pex_c_action)
+  
+  #3 Setting Less attributes
+  no_attr_pex_c_action = RBA::Action::new
+  no_attr_pex_c_action.title = "Less attributes"
+  no_attr_pex_c_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("no_attr = \"-B \"")
+      no_attr_pex_c_action.checked=(true)
+    else
+      no_attr_pex_c_action.checked=(false)
+    end
+  }
+  no_attr_pex_c_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+      text = File.read(f)
+      if no_attr_pex_c_action.is_checked?
+        no_attr_bool_c = "-B "
+      else
+        no_attr_bool_c = ""
+      end
+      new_contents = text.gsub(/no_attr = \".*\"/, 'no_attr = "'+ no_attr_bool_c + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.pex_c_magic_menu.end", "no_attr_pex_c", no_attr_pex_c_action)
+  
+  #4 Setting Purge nets
+  purge_pex_c_action = RBA::Action::new
+  purge_pex_c_action.title = "Purge nets"
+  purge_pex_c_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("purge = \"-F \"")
+      purge_pex_c_action.checked=(true)
+    else
+      purge_pex_c_action.checked=(false)
+    end
+  }
+  purge_pex_c_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+      text = File.read(f)
+      if purge_pex_c_action.is_checked?
+        purge_bool_c = "-F "
+      else
+        purge_bool_c = ""
+      end
+      new_contents = text.gsub(/purge = \".*\"/, 'purge = "'+ purge_bool_c + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.pex_c_magic_menu.end", "purge_pex_c", purge_pex_c_action)
+
+
+  #5.1 Setting Trimmed characters - #
+  trim_hash_pex_c_action = RBA::Action::new
+  trim_hash_pex_c_action.title = "Trimmed characters - \#"
+  trim_hash_pex_c_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("trim_hash = \"-t # \"")
+      trim_hash_pex_c_action.checked=(true)
+    else
+      trim_hash_pex_c_action.checked=(false)
+    end
+  }
+  trim_hash_pex_c_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+      text = File.read(f)
+      if trim_hash_pex_c_action.is_checked?
+        trim_hash_bool_c = "-t # "
+      else
+        trim_hash_bool_c = ""
+      end
+      new_contents = text.gsub(/trim_hash = \".*\"/, 'trim_hash = "'+ trim_hash_bool_c + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.pex_c_magic_menu.end", "trim_hash_pex_c", trim_hash_pex_c_action)
+
+  #5.2 Setting Trimmed characters - !
+  trim_exclam_pex_c_action = RBA::Action::new
+  trim_exclam_pex_c_action.title = "Trimmed characters - \!"
+  trim_exclam_pex_c_action.checkable=(true)
+  File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+    text = File.read(f)
+    if text.include?("trim_exclam = \"-t ! \"")
+      trim_exclam_pex_c_action.checked=(true)
+    else
+      trim_exclam_pex_c_action.checked=(false)
+    end
+  }
+  trim_exclam_pex_c_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+      text = File.read(f)
+      if trim_exclam_pex_c_action.is_checked?
+        trim_exclam_bool_c = "-t ! "
+      else
+        trim_exclam_bool_c = ""
+      end
+      new_contents = text.gsub(/trim_exclam = \".*\"/, 'trim_exclam = "'+ trim_exclam_bool_c + '"')
+      File.open(f, "w") {|file| file.puts new_contents }
+    }
+  end
+  mw.menu.insert_item("skymenu.pex_c_magic_menu.end", "trim_exclam_pex_c", trim_exclam_pex_c_action)
+
+  #6 Setting Run mode
+  run_mode_pex_c_action = RBA::Action::new
+  run_mode_pex_c_action.title = "Run mode"
+  run_mode_pex_c_action.on_triggered do
+    File.open(File.expand_path File.dirname(__FILE__) + "/sky130_magic_pex_c.lym", 'w') { |f| 
+      text = File.read(f)
+      run_mode_pex_c_select = RBA::InputDialog::ask_item("Run mode", "Select running mode:", [ "hier", "flat"], 1)
+      if run_mode_pex_c_select
+        if run_mode_pex_c_select == "hier"
+          new_contents = text.gsub(/mode = \".*\"/, 'mode = "-J '+ run_mode_pex_c_select + ' "')
+          File.open(f, "w") {|file| file.puts new_contents }
+        else
+          new_contents = text.gsub(/mode = \".*\"/, 'mode = "-J '+ run_mode_pex_c_select + ' "')
+          File.open(f, "w") {|file| file.puts new_contents }
+        end
+      end
+    }
+  end
+  mw.menu.insert_item("skymenu.pex_c_magic_menu.end", "run_mode_pex_c", run_mode_pex_c_action)
+
+
+  #####################################################################################
 
 end
 

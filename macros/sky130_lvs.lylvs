@@ -32,6 +32,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+$lvs_sub = "GND"
+$run_mode = "deep"
+$spice_net_names = "true"
+$spice_comments = "false"
+$scale = "false"
+$verbose = "false"
+$schematic_simplify = "false"
+$net_only = "false"
+$top_lvl_pins = "false"
+$combine = "false"
+$purge = "false"
+$purge_nets = "false"
+$schematic = "lvs_temp.cdl"
 # %include ../lvs/sky130.lvs
 </text>
 </klayout-macro>

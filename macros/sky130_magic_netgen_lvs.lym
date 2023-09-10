@@ -23,9 +23,9 @@
   distrib = ""
   no_attr = ""
   purge = ""
-  trim_hash = ""
-  trim_exclam = ""
-  mode = ""
+  trim_hash = "-t # "
+  trim_exclam = "-t ! "
+  mode = "-J flat "
   simpath = "~/.xschem/simulations"
   # End Options
 

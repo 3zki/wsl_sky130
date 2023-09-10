@@ -64,7 +64,6 @@ if [ ! -d "$HOME/.klayout" ]; then
 	cp -f klayoutrc $HOME/.klayout
 	cp -rf macros $HOME/.klayout/macros
 	cp -rf drc $HOME/.klayout/drc
-	cp -rf lvs $HOME/.klayout/lvs
 	cp -rf pymacros $HOME/.klayout/pymacros
 	mkdir $HOME/.klayout/libraries
 fi
@@ -262,7 +261,7 @@ export STD_CELL_LIBRARY=$MY_STDCELL
 cp -f $PDK_ROOT/$PDK/libs.tech/xschem/xschemrc $HOME/.xschem
 cp -f $PDK_ROOT/$PDK/libs.tech/magic/$PDK.magicrc $HOME/.magicrc
 # cp -rf $PDK_ROOT/$PDK/libs.tech/klayout/drc $HOME/.klayout/drc
-# cp -rf $PDK_ROOT/$PDK/libs.tech/klayout/lvs $HOME/.klayout/lvs
+cp -rf $PDK_ROOT/$PDK/libs.tech/klayout/lvs $HOME/.klayout/lvs
 # cp -rf $PDK_ROOT/$PDK/libs.tech/klayout/pymacros $HOME/.klayout/pymacros
 # cp -rf $PDK_ROOT/$PDK/libs.tech/klayout/scripts $HOME/.klayout/scripts
 mkdir $HOME/.klayout/tech/

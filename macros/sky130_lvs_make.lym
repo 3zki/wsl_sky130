@@ -19,6 +19,7 @@
   include RBA
 
   # Options
+  schematic = "lvs_temp.cdl"
   simpath = "~/.xschem/simulations"
   # End Options
 
@@ -26,12 +27,12 @@
   gds_dir = File.expand_path(File.dirname(RBA::Application.instance.main_window.current_view.active_cellview.filename))
   cell_name = RBA::CellView::active.cell_name
 
-  system( "cp -f #{simpath}/#{gds_base}.spice #{gds_dir}/#{cell_name}.cdl" )
-  system( "sed -i -e 's/#{gds_base}/#{cell_name}/g' #{gds_dir}/#{cell_name}.cdl" )
-  system( "sed -i -e 's/ W=/u W=/g' #{gds_dir}/#{cell_name}.cdl" )
-  system( "sed -i -e 's/ nf=/u nf=/g' #{gds_dir}/#{cell_name}.cdl" )
-  system( "sed -i -e 's/XM/M/g' #{gds_dir}/#{cell_name}.cdl" )
-  system( "gnome-terminal --title=Netlist --working-directory=#{gds_dir} -- sh -c 'cat #{gds_dir}/#{cell_name}.cdl; read line'" )
+  system( "cp -f #{simpath}/#{gds_base}.spice #{gds_dir}/#{schematic}" )
+  system( "sed -i -e 's/#{gds_base}/#{cell_name}/g' #{gds_dir}/#{schematic}" )
+  system( "sed -i -e 's/ W=/u W=/g' #{gds_dir}/#{schematic}" )
+  system( "sed -i -e 's/ nf=/u nf=/g' #{gds_dir}/#{schematic}" )
+  system( "sed -i -e 's/XM/M/g' #{gds_dir}/#{schematic}" )
+  system( "gnome-terminal --title=Netlist --working-directory=#{gds_dir} -- sh -c 'cat #{gds_dir}/#{schematic}; read line'" )
 end
 </text>
 </klayout-macro>
